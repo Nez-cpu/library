@@ -1,0 +1,85 @@
+// library.js
+
+const myLibrary = [];
+
+// Book constructor
+function Book(title, author, pages, read) {
+  this.id = crypto.randomUUID();
+  this.title = title;
+  this.author = author;
+  this.pages = pages;
+  this.read = read;
+}
+
+// Prototype method to toggle read status
+Book.prototype.toggleRead = function () {
+  this.read = !this.read;
+};
+
+function addBookToLibrary(title, author, pages, read) {
+  const newBook = new Book(title, author, pages, read);
+  myLibrary.push(newBook);
+  displayBooks();
+}
+
+function displayBooks() {
+  const library = document.getElementById("library");
+  library.innerHTML = ""; // Clear old content
+
+  myLibrary.forEach((book) => {
+    const card = document.createElement("div");
+    card.classList.add("book-card");
+    card.setAttribute("data-id", book.id);
+
+    card.innerHTML = `
+      <h3>${book.title}</h3>
+      <p>Author: ${book.author}</p>
+      <p>Pages: ${book.pages}</p>
+      <p>Status: ${book.read ? "✅ Read" : "❌ Not Read"}</p>
+      <button class="toggle-btn">Toggle Read</button>
+      <button class="remove-btn">Remove</button>
+    `;
+
+    // Remove book
+    card.querySelector(".remove-btn").addEventListener("click", () => {
+      removeBook(book.id);
+    });
+
+    // Toggle read
+    card.querySelector(".toggle-btn").addEventListener("click", () => {
+      book.toggleRead();
+      displayBooks();
+    });
+
+    library.appendChild(card);
+  });
+}
+function removeBook(id) {
+  const index = myLibrary.findIndex((book) => book.id === id);
+  if (index !== -1) {
+    myLibrary.splice(index, 1);
+    displayBooks();
+  }
+}
+const newBookBtn = document.getElementById("newBookBtn");
+const bookForm = document.getElementById("bookForm");
+
+newBookBtn.addEventListener("click", () => {
+  bookForm.style.display = bookForm.style.display === "none" ? "block" : "none";
+});
+
+bookForm.addEventListener("submit", (e) => {
+  e.preventDefault(); // prevent page reload
+
+  const title = document.getElementById("title").value;
+  const author = document.getElementById("author").value;
+  const pages = document.getElementById("pages").value;
+  const read = document.getElementById("read").checked;
+
+  addBookToLibrary(title, author, pages, read);
+
+  // reset + hide form
+  bookForm.reset();
+  bookForm.style.display = "none";
+});
+
